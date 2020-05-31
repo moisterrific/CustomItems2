@@ -1,4 +1,8 @@
 # CustomItems2
+**TShock version:** 4.4.0 pre-8
+
+**API version:** 2.1
+
 Custom Items plugin originally by [Johuan/Interverse](https://github.com/Interverse/CustomItems), updated by me.
 
 - Allows you to spawn an item with custom attributes.
