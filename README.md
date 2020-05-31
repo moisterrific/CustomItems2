@@ -1,13 +1,27 @@
 # CustomItems2
 Custom Items plugin originally by [Johuan/Interverse](https://github.com/Interverse/CustomItems), updated by me.
 
-Allows you to spawn an item with custom attributes These items will reset when you drop it, store the item in a chest or other container, or leave the server, so you cannot transfer it to another person.
+- Allows you to spawn an item with custom attributes.
+- These items will reset when you drop it, store the item in a chest or other container, or leave the server, so you cannot transfer it to another person.
 
-## Commands
+## How to install
+1. Put the .dll file into the ServerPlugins folder
+2. Grant your desired group the necessary permissions to use this plugin
+3. Done!
+
+### Permissions
+- `customitem `
+  - needed to use `/citem`
+- `customitem.give`
+  - needed to use `/gcitem`
+
+## How to use
+### Commands
+`< >` indicates a parameter that must be entered for the command to work, while `[ ]` indicates an optional parameter. `|` means OR. You must surround your parameter (player name or item name) with `" "` if it contains spaces. 
 - `/customitem <itemid|"item name"> [parameters] [amount]`  or `/citem` for short
 - `/givecustomitem <itemid|"item name"> <"player name"> [parameters] [amount]` or `/gcitem` for short
 
-## Parameters
+### Parameters
 - `hexcolor` or `hc` 
   - Gives a custom color to an item (client side) Example of hex: 0000FF is blue 
 - `damage` or `d` 
@@ -40,7 +54,3 @@ Order doesn't matter when inputting parameters. You can put any parameters you n
   - `/customitem "chlorophyte shotbow" scale 2 damage 400 useammo 0 shoot 162 shootspeed 25 usetime 4`
 - Give moisterrific an ultra annoying Meowmere that does big damage
   - `/gcitem moisterrific meowmere ut 1 d 5000`
-
-## Permissions
-- `customitem `
-- `customitem.give`
