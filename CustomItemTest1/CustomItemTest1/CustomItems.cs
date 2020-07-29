@@ -41,14 +41,14 @@ namespace CustomItems
         {
             Commands.ChatCommands.Add(new Command("customitem", CustomItem, "customitem", "citem")
             {
-                HelpText = "/customitem <id/itemname> <parameters> <#> ... \nParameters: hexcolor, damage, knockback, useanimation, " +
-                "usetime, shoot, shootspeed, width, height, scale, ammo, useammo, notammo."
+                HelpText = "/customitem <id/itemname> <parameters> <#> ... \nParameters: hexcolor (hc), prefix (p), stack (st), damage (d), knockback (kb), useanimation (ua), " +
+                "usetime (ut), shoot (s), shootspeed (ss), width (w), height (h), scale (sc), ammo (a), useammo (uam), notammo (na)."
             });
 
             Commands.ChatCommands.Add(new Command("customitem.give", GiveCustomItem, "givecustomitem", "gcitem")
             {
-                HelpText = "/givecustomitem <name> <id/itemname> <parameters> <#> ... \nParameters: hexcolor, damage, knockback, useanimation, " +
-                "usetime, shoot, shootspeed, width, height, scale, ammo, useammo, notammo."
+                HelpText = "/givecustomitem <name> <id/itemname> <parameters> <#> ... \nParameters: hexcolor (hc), prefix (p), stack (st), damage (d), knockback (kb), useanimation (ua), " +
+                "usetime (ut), shoot (s), shootspeed (ss), width (w), height (h), scale (sc), ammo (a), useammo (uam), notammo (na)."
             });
         }
 
@@ -59,8 +59,8 @@ namespace CustomItems
 
             if (num == 0)
             {
-                args.Player.SendErrorMessage("Invalid Syntax. /customitem <id/itemname> <parameters> <#> ... \nParameters: hexcolor, damage, knockback, useanimation, " +
-                "usetime, shoot, shootspeed, width, height, scale, ammo, useammo, notammo.");
+                args.Player.SendErrorMessage("Invalid Syntax. /customitem <id/itemname> <parameters> <#> ... \nParameters: hexcolor (hc), prefix (p), stack (st), damage (d), knockback (kb), useanimation (ua), " +
+                "usetime (ut), shoot (s), shootspeed (ss), width (w), height (h), scale (sc), ammo (a), useammo (uam), notammo (na).");
                 return;
             }
 
@@ -69,6 +69,7 @@ namespace CustomItems
             TSPlayer player = new TSPlayer(args.Player.Index);
             int itemIndex = Item.NewItem((int)player.X, (int)player.Y, item.width, item.height, item.type, item.maxStack);
             Item targetItem = Main.item[itemIndex];
+            targetItem.playerIndexTheItemIsReservedFor = args.Player.Index;
 
             for (int index = 1; index < num; ++index)
             {
@@ -119,7 +120,7 @@ namespace CustomItems
                 {
                     targetItem.ammo = int.Parse(args.Parameters[index + 1]);
                 }
-                else if ((lower.Equals("useammo") || lower.Equals("ua")) && index + 1 < num)
+                else if ((lower.Equals("useammo") || lower.Equals("uam")) && index + 1 < num)
                 {
                     targetItem.useAmmo = int.Parse(args.Parameters[index + 1]);
                 }
@@ -127,9 +128,19 @@ namespace CustomItems
                 {
                     targetItem.notAmmo = Boolean.Parse(args.Parameters[index + 1]);
                 }
-                ++index;
+                else if ((lower.Equals("prefix") || lower.Equals("p") && index + 1 < num))
+                {
+                    targetItem.prefix = (byte)TShock.Utils.GetPrefixByIdOrName(args.Parameters[index + 1])[0];
+                }
+                else if ((lower.Equals("stack") || lower.Equals("st") && index + 1 < num))
+                {
+                    targetItem.stack = int.Parse(args.Parameters[index + 1]);
+                }
+            ++index;
             }
-            TSPlayer.All.SendData(PacketTypes.TweakItem, "", itemIndex, 255, 63);
+            TSPlayer.All.SendData(PacketTypes.UpdateItemDrop, null, itemIndex);
+            TSPlayer.All.SendData(PacketTypes.ItemOwner, null, itemIndex);
+            TSPlayer.All.SendData(PacketTypes.TweakItem, null, itemIndex, 255, 63);
             player.SendSuccessMessage(string.Format("Gave a custom {0}.", item.Name));
         }
 
@@ -140,8 +151,8 @@ namespace CustomItems
 
             if (num == 0)
             {
-                args.Player.SendErrorMessage("Invalid Syntax. /givecustomitem <name> <id/itemname> <parameters> <#> ... \nParameters: hexcolor, damage, knockback, useanimation, " +
-                "usetime, shoot, shootspeed, width, height, scale, ammo, useammo, notammo.");
+                args.Player.SendErrorMessage("Invalid Syntax. /givecustomitem <name> <id/itemname> <parameters> <#> ... \nParameters: hexcolor (hc), prefix (p), stack (st), damage (d), knockback (kb), useanimation (ua), " +
+                "usetime (ut), shoot (s), shootspeed (ss), width (w), height (h), scale (sc), ammo (a), useammo (uam), notammo (na).");
                 return;
             }
 
@@ -161,9 +172,10 @@ namespace CustomItems
 
             List<Item> items = TShock.Utils.GetItemByIdOrName(args.Parameters[1]);
             Item item = items[0];
-            TSPlayer player = new TSPlayer(players[0].Index);
+            TSPlayer player = players[0];
             int itemIndex = Item.NewItem((int)player.X, (int)player.Y, item.width, item.height, item.type, item.maxStack);
             Item targetItem = Main.item[itemIndex];
+            targetItem.playerIndexTheItemIsReservedFor = player.Index;
 
             for (int index = 2; index < num; ++index)
             {
@@ -214,7 +226,7 @@ namespace CustomItems
                 {
                     targetItem.ammo = int.Parse(args.Parameters[index + 1]);
                 }
-                else if ((lower.Equals("useammo") || lower.Equals("ua")) && index + 1 < num)
+                else if ((lower.Equals("useammo") || lower.Equals("uam")) && index + 1 < num)
                 {
                     targetItem.useAmmo = int.Parse(args.Parameters[index + 1]);
                 }
@@ -222,12 +234,21 @@ namespace CustomItems
                 {
                     targetItem.notAmmo = Boolean.Parse(args.Parameters[index + 1]);
                 }
+                else if ((lower.Equals("prefix") || lower.Equals("p") && index + 1 < num))
+                {
+                    targetItem.prefix = (byte)TShock.Utils.GetPrefixByIdOrName(args.Parameters[index + 1])[0];
+                }
+                else if ((lower.Equals("stack") || lower.Equals("st") && index + 1 < num))
+                {
+                    targetItem.stack = int.Parse(args.Parameters[index + 1]);
+                }
                 ++index;
             }
-            TSPlayer.All.SendData(PacketTypes.TweakItem, "", itemIndex, 255, 63);
-            var plr = players[0];
-            args.Player.SendSuccessMessage(string.Format("Gave {0} a custom {1}.", plr.Name, item.Name));
-            plr.SendSuccessMessage(string.Format("{0} gave you a custom {1}.", args.Player.Name, item.Name));
+            TSPlayer.All.SendData(PacketTypes.UpdateItemDrop, null, itemIndex);
+            TSPlayer.All.SendData(PacketTypes.ItemOwner, null, itemIndex);
+            TSPlayer.All.SendData(PacketTypes.TweakItem, null, itemIndex, 255, 63);
+            args.Player.SendSuccessMessage(string.Format("Gave {0} a custom {1}.", player.Name, item.Name));
+            player.SendSuccessMessage(string.Format("{0} gave you a custom {1}.", args.Player.Name, item.Name));
         }
     }
 }
